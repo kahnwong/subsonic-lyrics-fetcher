@@ -11,7 +11,7 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
-type NowPlaying struct {
+type NowPlayingFull struct {
 	SubsonicResponse struct {
 		Status        string `json:"status"`
 		Version       string `json:"version"`
@@ -50,7 +50,7 @@ type NowPlaying struct {
 	} `json:"subsonic-response"`
 }
 
-type NowPlayingSong struct {
+type NowPlayingTrack struct {
 	ID          string    `json:"id"`
 	Parent      string    `json:"parent"`
 	IsDir       bool      `json:"isDir"`
@@ -79,14 +79,14 @@ type NowPlayingSong struct {
 	PlayerName  string    `json:"playerName"`
 }
 
-func getNowPlaying(baseURL string, authPayload *AuthPayload) ([]NowPlayingSong, error) {
+func getNowPlaying(baseURL string, authPayload *AuthPayload) ([]NowPlayingTrack, error) {
 	authParams, _ := query.Values(authPayload)
 	url := fmt.Sprintf("%s/rest/getNowPlaying?%s", baseURL, authParams.Encode())
 	resp, err := http.Get(url)
 
 	if err != nil {
 		log.Println("No response from request")
-		return []NowPlayingSong{}, err
+		return []NowPlayingTrack{}, err
 	}
 	defer resp.Body.Close()
 
@@ -94,20 +94,20 @@ func getNowPlaying(baseURL string, authPayload *AuthPayload) ([]NowPlayingSong, 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("Error reading response body")
-		return []NowPlayingSong{}, err
+		return []NowPlayingTrack{}, err
 	}
 
-	var result NowPlaying
+	var result NowPlayingFull
 	if err := json.Unmarshal(body, &result); err != nil {
 		log.Println("Can not unmarshal JSON")
-		return []NowPlayingSong{}, err
+		return []NowPlayingTrack{}, err
 	}
 
 	// parse response
 	tracksRaw := result.SubsonicResponse.NowPlaying.Entry
 
 	if len(tracksRaw) == 1 { // if has recently played tracks
-		tracks := []NowPlayingSong{}
+		var tracks []NowPlayingTrack
 
 		for _, rec := range tracksRaw {
 			tracks = append(tracks, rec)
@@ -115,6 +115,6 @@ func getNowPlaying(baseURL string, authPayload *AuthPayload) ([]NowPlayingSong, 
 
 		return tracks, nil
 	} else {
-		return []NowPlayingSong{}, nil
+		return []NowPlayingTrack{}, nil
 	}
 }
