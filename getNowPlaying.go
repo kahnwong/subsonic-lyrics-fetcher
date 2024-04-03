@@ -50,35 +50,6 @@ type NowPlayingFull struct {
 	} `json:"subsonic-response"`
 }
 
-type NowPlayingTrack struct {
-	ID          string    `json:"id"`
-	Parent      string    `json:"parent"`
-	IsDir       bool      `json:"isDir"`
-	Title       string    `json:"title"`
-	Album       string    `json:"album"`
-	Artist      string    `json:"artist"`
-	Track       int       `json:"track"`
-	Year        int       `json:"year"`
-	Genre       string    `json:"genre"`
-	CoverArt    string    `json:"coverArt"`
-	Size        int       `json:"size"`
-	ContentType string    `json:"contentType"`
-	Suffix      string    `json:"suffix"`
-	Duration    int       `json:"duration"`
-	BitRate     int       `json:"bitRate"`
-	Path        string    `json:"path"`
-	DiscNumber  int       `json:"discNumber"`
-	Created     time.Time `json:"created"`
-	AlbumID     string    `json:"albumId"`
-	ArtistID    string    `json:"artistId"`
-	Type        string    `json:"type"`
-	IsVideo     bool      `json:"isVideo"`
-	Username    string    `json:"username"`
-	MinutesAgo  int       `json:"minutesAgo"`
-	PlayerID    int       `json:"playerId"`
-	PlayerName  string    `json:"playerName"`
-}
-
 type NowPlaying struct {
 	Title  string
 	Artist string
@@ -113,7 +84,7 @@ func getNowPlaying(baseURL string, authPayload *AuthPayload) (*NowPlaying, error
 
 	if len(tracksRaw) == 1 { // if has recently played tracks
 		nowPlayingTrack := tracksRaw[0]
-		nowPlaying := &NowPlaying{nowPlayingTrack.Title, nowPlayingTrack.Artist}
+		nowPlaying := &NowPlaying{tracksRaw[0].Title, nowPlayingTrack.Artist}
 
 		return nowPlaying, nil
 	} else {
