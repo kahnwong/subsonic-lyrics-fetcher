@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 
+	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 )
 
@@ -47,8 +48,18 @@ func main() {
 		fmt.Println("Currently nothing is playing")
 		os.Exit(1)
 	} else {
+		// print track info
+		green := color.New(color.FgGreen).SprintFunc()
+		blue := color.New(color.FgBlue).SprintFunc()
+		fmt.Printf("%s: %s\n", green("Title"), blue(nowPlaying.Title))
+		fmt.Printf("%s: %s\n\n", green("Artist"), blue(nowPlaying.Artist))
+
 		// print lyrics
-		fmt.Println(nowPlaying)
-		fmt.Println("lyrics")
+		lyrics, err := getLyrics(baseURL, authPayload, nowPlaying)
+		if err != nil {
+			fmt.Println("Error getting lyrics")
+		} else {
+			fmt.Println(lyrics)
+		}
 	}
 }
