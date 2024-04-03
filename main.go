@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"reflect"
 
 	"github.com/joho/godotenv"
 )
@@ -17,8 +18,8 @@ type AuthPayload struct {
 	Format   string `url:"f"`
 }
 
-func initAuthPayload() *AuthPayload {
-	return &AuthPayload{
+func initAuthPayload() AuthPayload {
+	return AuthPayload{
 		Username: os.Getenv("USERNAME"),
 		Token:    os.Getenv("TOKEN"),
 		Salt:     os.Getenv("SALT"),
@@ -42,7 +43,7 @@ func main() {
 	if err != nil {
 		fmt.Println("Error getting now playing")
 	}
-	if nowPlaying == nil {
+	if reflect.ValueOf(nowPlaying).IsZero() {
 		fmt.Println("Currently nothing is playing")
 		os.Exit(1)
 	} else {

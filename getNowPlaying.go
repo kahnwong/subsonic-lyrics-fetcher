@@ -51,18 +51,18 @@ type NowPlayingFull struct {
 }
 
 type NowPlaying struct {
-	Title  string
-	Artist string
+	Title  string `url:"title"`
+	Artist string `url:"artist"`
 }
 
-func getNowPlaying(baseURL string, authPayload *AuthPayload) (*NowPlaying, error) {
+func getNowPlaying(baseURL string, authPayload AuthPayload) (NowPlaying, error) {
 	authParams, _ := query.Values(authPayload)
 	url := fmt.Sprintf("%s/rest/getNowPlaying?%s", baseURL, authParams.Encode())
 	resp, err := http.Get(url)
 
 	if err != nil {
 		log.Println("No response from request")
-		return nil, err
+		return NowPlaying{}, err
 	}
 	defer resp.Body.Close()
 
@@ -70,13 +70,13 @@ func getNowPlaying(baseURL string, authPayload *AuthPayload) (*NowPlaying, error
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("Error reading response body")
-		return nil, err
+		return NowPlaying{}, err
 	}
 
 	var result NowPlayingFull
 	if err := json.Unmarshal(body, &result); err != nil {
 		log.Println("Can not unmarshal JSON")
-		return nil, err
+		return NowPlaying{}, err
 	}
 
 	// parse response
@@ -84,10 +84,10 @@ func getNowPlaying(baseURL string, authPayload *AuthPayload) (*NowPlaying, error
 
 	if len(tracksRaw) == 1 { // if has recently played tracks
 		nowPlayingTrack := tracksRaw[0]
-		nowPlaying := &NowPlaying{tracksRaw[0].Title, nowPlayingTrack.Artist}
+		nowPlaying := NowPlaying{tracksRaw[0].Title, nowPlayingTrack.Artist}
 
 		return nowPlaying, nil
 	} else {
-		return nil, nil
+		return NowPlaying{}, nil
 	}
 }
