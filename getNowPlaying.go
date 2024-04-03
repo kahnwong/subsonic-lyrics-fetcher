@@ -79,14 +79,19 @@ type NowPlayingTrack struct {
 	PlayerName  string    `json:"playerName"`
 }
 
-func getNowPlaying(baseURL string, authPayload *AuthPayload) ([]NowPlayingTrack, error) {
+type NowPlaying struct {
+	Title  string
+	Artist string
+}
+
+func getNowPlaying(baseURL string, authPayload *AuthPayload) (*NowPlaying, error) {
 	authParams, _ := query.Values(authPayload)
 	url := fmt.Sprintf("%s/rest/getNowPlaying?%s", baseURL, authParams.Encode())
 	resp, err := http.Get(url)
 
 	if err != nil {
 		log.Println("No response from request")
-		return []NowPlayingTrack{}, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
@@ -94,27 +99,24 @@ func getNowPlaying(baseURL string, authPayload *AuthPayload) ([]NowPlayingTrack,
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("Error reading response body")
-		return []NowPlayingTrack{}, err
+		return nil, err
 	}
 
 	var result NowPlayingFull
 	if err := json.Unmarshal(body, &result); err != nil {
 		log.Println("Can not unmarshal JSON")
-		return []NowPlayingTrack{}, err
+		return nil, err
 	}
 
 	// parse response
 	tracksRaw := result.SubsonicResponse.NowPlaying.Entry
 
 	if len(tracksRaw) == 1 { // if has recently played tracks
-		var tracks []NowPlayingTrack
+		nowPlayingTrack := tracksRaw[0]
+		nowPlaying := &NowPlaying{nowPlayingTrack.Title, nowPlayingTrack.Artist}
 
-		for _, rec := range tracksRaw {
-			tracks = append(tracks, rec)
-		}
-
-		return tracks, nil
+		return nowPlaying, nil
 	} else {
-		return []NowPlayingTrack{}, nil
+		return nil, nil
 	}
 }

@@ -42,13 +42,12 @@ func main() {
 	if err != nil {
 		fmt.Println("Error getting now playing")
 	}
-	if len(nowPlaying) == 0 {
+	if nowPlaying == nil {
 		fmt.Println("Currently nothing is playing")
 		os.Exit(1)
+	} else {
+		// print lyrics
+		fmt.Println(nowPlaying)
+		fmt.Println("lyrics")
 	}
-
-	// print lyrics
-
-	// print result
-	fmt.Println(nowPlaying)
 }
