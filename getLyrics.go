@@ -56,6 +56,9 @@ func getLyrics(baseURL string, authPayload AuthPayload, nowPlaying NowPlaying) (
 
 	// parse response
 	lyrics := result.SubsonicResponse.Lyrics.Value
-
-	return lyrics, nil
+	if lyrics != "" {
+		return lyrics, nil
+	} else {
+		return "No lyrics to display", nil
+	}
 }
